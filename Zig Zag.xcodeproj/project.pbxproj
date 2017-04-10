@@ -15,6 +15,7 @@
 		74866ABA1E9BEAB900390A48 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74866AB81E9BEAB900390A48 /* LaunchScreen.storyboard */; };
 		74866AC51E9BEAB900390A48 /* Zig_ZagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74866AC41E9BEAB900390A48 /* Zig_ZagTests.swift */; };
 		74866AD01E9BEAB900390A48 /* Zig_ZagUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74866ACF1E9BEAB900390A48 /* Zig_ZagUITests.swift */; };
+		74866ADE1E9C128800390A48 /* coin.dae in Resources */ = {isa = PBXBuildFile; fileRef = 74866ADD1E9C128800390A48 /* coin.dae */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		74866ACB1E9BEAB900390A48 /* Zig ZagUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Zig ZagUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		74866ACF1E9BEAB900390A48 /* Zig_ZagUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zig_ZagUITests.swift; sourceTree = "<group>"; };
 		74866AD11E9BEAB900390A48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		74866ADD1E9C128800390A48 /* coin.dae */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml.dae; path = coin.dae; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 		74866AAC1E9BEAB900390A48 /* Zig Zag */ = {
 			isa = PBXGroup;
 			children = (
+				74866ADD1E9C128800390A48 /* coin.dae */,
 				74866AAD1E9BEAB900390A48 /* AppDelegate.swift */,
 				74866AAF1E9BEAB900390A48 /* art.scnassets */,
 				74866AB11E9BEAB900390A48 /* GameViewController.swift */,
@@ -242,6 +245,7 @@
 				74866ABA1E9BEAB900390A48 /* LaunchScreen.storyboard in Resources */,
 				74866AB71E9BEAB900390A48 /* Assets.xcassets in Resources */,
 				74866AB51E9BEAB900390A48 /* Main.storyboard in Resources */,
+				74866ADE1E9C128800390A48 /* coin.dae in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
