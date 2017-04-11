@@ -11,11 +11,11 @@ import QuartzCore
 import SceneKit
 
 struct  bodyNames {
-    static let Person = 0x1 >> 1
-    static let Coin = 0x1 >> 2
+    static let Person = 0x1 << 1
+    static let Coin = 0x1 << 2
 }
 
-class GameViewController: UIViewController, SCNSceneRendererDelegate {
+class GameViewController: UIViewController, SCNSceneRendererDelegate, SCNPhysicsContactDelegate {
 
     let scene = SCNScene()
     let cameraNode = SCNNode()
@@ -34,8 +34,91 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     
     var firstOne = Bool()
     
+    var score = Int()
+    var highScore = Int()
+    
+    var dead = Bool()
+    
+    var gameButton = UIButton()
+    
+    var scoreLbl = UILabel()
+    var highScoreLbl = UILabel()
+    
+    
+    
     override func viewDidLoad() {
         self.createScene()
+        
+        scoreLbl = UILabel(frame: CGRect(x: self.view.frame.width / 2, y: self.view.frame.height / 2 + self.view.frame.height / 2.5, width: self.view.frame.width, height: 100))
+        scoreLbl.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height / 2 - self.view.frame.height / 2.5)
+        scoreLbl.textAlignment = .center
+        scoreLbl.text = "Score : \(score)"
+        scoreLbl.textColor = UIColor.darkGray
+        self.view.addSubview(scoreLbl)
+        
+        
+        highScoreLbl = UILabel(frame: CGRect(x: self.view.frame.width / 2, y: self.view.frame.height / 2 + self.view.frame.height / 2.5, width: self.view.frame.width, height: 100))
+        
+        
+        highScoreLbl.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height / 2 + self.view.frame.height / 2.5)
+        highScoreLbl.textAlignment = .center
+        highScoreLbl.text = " Highscore : \(score)"
+        highScoreLbl.textColor = UIColor.darkGray
+        self.view.addSubview(highScoreLbl)
+        
+        
+            
+        scene.physicsWorld.contactDelegate = self
+        
+        gameButton = UIButton(type: UIButtonType.custom)
+        gameButton.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+        gameButton.center = CGPoint(x: self.view.frame.width - 40, y: 60)
+        gameButton.setImage(UIImage(named: "gamecenter"), for: .normal)
+        gameButton.addTarget(self, action: Selector("showLeaderboard"), for: UIControlEvents.touchUpInside)
+        self.view.addSubview(gameButton)
+        
+    }
+    
+    func updateLabel() {
+        scoreLbl.text = "Score : \(score)"
+        highScoreLbl.text = " Highscore : \(score)"
+        
+    }
+    
+    func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
+        
+        let nodeA = contact.nodeA
+        let nodeB = contact.nodeB
+        
+        if nodeA.physicsBody?.categoryBitMask == bodyNames.Coin && nodeB.physicsBody?.categoryBitMask == bodyNames.Person{
+            
+            nodeA.removeFromParentNode()
+            addScore()
+            
+        } else if nodeA.physicsBody?.categoryBitMask == bodyNames.Person && nodeB.physicsBody?.categoryBitMask == bodyNames.Coin {
+            nodeB.removeFromParentNode()
+            
+            addScore()
+            
+        }
+    }
+    
+    func addScore(){
+        
+        score += 1
+        
+        self.perform(#selector(GameViewController.updateLabel), on: .main, with: nil, waitUntilDone: false)
+        
+        
+        if score > highScore {
+            
+            highScore = score
+            
+            let scoreDefault = UserDefaults.standard
+            scoreDefault.set(highScore, forKey: "highscore")
+            print(highScore)
+            
+        }
     }
     
     func fadeIn(node : SCNNode) {
@@ -45,6 +128,8 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     }
     
     func createCoin(box : SCNNode) {
+        
+        scene.physicsWorld.gravity = SCNVector3Make(0, 0, 0)
         
         let spin = SCNAction.rotate(by: CGFloat(M_PI * 2), around: SCNVector3Make(0, 0.5, 0), duration: 0.5)
         
@@ -57,6 +142,10 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
             coin?.scale = SCNVector3Make(0.2, 0.2, 0.2)
             
             coin?.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.dynamic, shape: SCNPhysicsShape(node: coin!, options: nil))
+            coin?.physicsBody?.categoryBitMask = bodyNames.Coin
+            coin?.physicsBody?.contactTestBitMask = bodyNames.Person
+            coin?.physicsBody?.collisionBitMask = bodyNames.Person
+            coin?.physicsBody?.isAffectedByGravity = false
             
             scene.rootNode.addChildNode(coin!)
             coin?.runAction(SCNAction.repeatForever(spin))
@@ -75,6 +164,8 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval){
         
+        
+        if dead == false {
         let deleteBox = self.scene.rootNode.childNode(withName: "\(prevBoxNumber)", recursively: true)
         
         let currentBox = self.scene.rootNode.childNode(withName: "\(prevBoxNumber + 1)", recursively: true)
@@ -96,7 +187,8 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
         }else {
             
             die()
-            
+            dead = true
+        }
         }
     }
     
@@ -196,10 +288,24 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     
     func createScene(){
         
+        let scoreDefault = UserDefaults.standard
+        
+        if scoreDefault.integer(forKey: "highscore") != 0 {
+            
+            highScore = scoreDefault.integer(forKey: "highscore")
+            
+        } else {
+            highScore = 0
+        }
+        
+        print(highScore)
+        
         self.view.backgroundColor = UIColor.white
         
         boxNumber = 0
         prevBoxNumber = 0
+        firstOne = true
+        dead = false
         
         
         
@@ -214,6 +320,13 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
         personMat.diffuse.contents = UIColor.red
         personGeo.materials = [personMat]
         person.position = SCNVector3Make(0, 1.1, 0)
+        
+        person.physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.static, shape: SCNPhysicsShape(node: person, options: nil))
+        person.physicsBody?.categoryBitMask = bodyNames.Person
+        person.physicsBody?.collisionBitMask = bodyNames.Coin
+        person.physicsBody?.contactTestBitMask = bodyNames.Coin
+        person.physicsBody?.isAffectedByGravity = false
+        
         scene.rootNode.addChildNode(person)
         
         //Create camera
